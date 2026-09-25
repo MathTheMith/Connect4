@@ -41,16 +41,33 @@ static int	setup_window(t_game *game)
 	return (cell);
 }
 
+static void	handle_click(t_game *game, int cell, bool *player)
+{
+	Vector2	mouse;
+	int		x;
+	int		y;
+
+	mouse = GetMousePosition();
+	x = mouse.x / cell;
+	y = 0;
+
+	while((y < game->rows && game->grid[y][x] == '.' ) || y == 0)
+		y++;
+	y-=1;
+	if(game->grid[y][x] == '.')
+	{
+		game->grid[y][x] = *player ? 'X' : 'O';
+		*player = !*player;
+	}
+}
+
 void	draw_grid(t_game *game)
 {
 	int	cell;
 	int	i;
 	int j;
-	int	x;
-	int	y;
-	Vector2	mouse;
 	Color color;
-	bool player = false;
+	bool player = true;
 	cell = setup_window(game);
 	if (!cell)
 	{
@@ -79,17 +96,7 @@ void	draw_grid(t_game *game)
 			j++;
 		}
 		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-		{
-			mouse = GetMousePosition();
-			x = mouse.x / cell;
-			y = mouse.y / cell;
-
-			if (game->grid[y][x] == '.')
-			{
-				player = !player;	
-				game->grid[y][x] = player ? 'X' : 'O';
-			}
-		}
+			handle_click(game, cell, &player);
 		EndDrawing();
 	}
 	CloseWindow();
