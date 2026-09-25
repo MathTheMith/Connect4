@@ -4,3 +4,4 @@
 *.a
 connect4
 *.pdf
+raylib/

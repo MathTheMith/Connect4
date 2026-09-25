@@ -1,27 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   libft.h                                            :+:      :+:    :+:   */
+/*   ft_strncmp.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mvachon <mvachon@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/08 09:17:05 by mvachon           #+#    #+#             */
-/*   Updated: 2024/11/16 13:43:44 by mvachon          ###   ########lyon.fr   */
+/*   Created: 2024/11/04 18:35:25 by mvachon           #+#    #+#             */
+/*   Updated: 2024/11/13 10:18:05 by mvachon          ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBFT_H
-# define LIBFT_H
+#include "libft.h"
 
-# include <stdlib.h>
-# include <limits.h>
-# include <unistd.h>
+int	ft_strncmp(const char *s1, const char *s2, size_t n)
+{
+	size_t	i;
 
-int		ft_atoi(const char *nptr);
-int		ft_isdigit(int c);
-void	*ft_memset(void *s, int c, size_t n);
-size_t	ft_strlen(const char *s);
-int		ft_strncmp(const char *s1, const char *s2, size_t n);
-void	ft_putendl_fd(char *s, int fd);
+	i = 0;
+	while (i < n && (s1[i] || s2[i]))
+	{
+		if (s1[i] != s2[i])
+			return ((unsigned char)s1[i] - (unsigned char)s2[i]);
+		i++;
+	}
+	return (0);
+}
 
-#endif
+// int main(void)
+// {
+//   printf("%d",ft_strncmp("coucou", "couple", 4));
+// }

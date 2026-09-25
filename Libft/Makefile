@@ -14,6 +14,7 @@ SRC = ft_atoi.c \
       ft_isdigit.c \
       ft_memset.c \
       ft_strlen.c \
+      ft_strncmp.c \
       ft_putendl_fd.c \
 
 HEADER = libft.h

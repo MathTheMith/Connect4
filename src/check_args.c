@@ -19,7 +19,7 @@ int	is_number(char *str)
 
 int	check_args(int ac, char **av)
 {
-	if (ac != 3)
+	if (ac != 3 && ac != 4)
 	{
 		ft_putendl_fd("Wrong number of arguments !", 2);
 		return (0);
@@ -37,6 +37,11 @@ int	check_args(int ac, char **av)
 	if (ft_atoi(av[2]) < 7)
 	{
 		ft_putendl_fd("Second argument must be at least 7 !", 2);
+		return (0);
+	}
+	if (ac == 4 && ft_strncmp(av[3], "--gui", 6) != 0)
+	{
+		ft_putendl_fd("Unknown option, only --gui is allowed !", 2);
 		return (0);
 	}
 	return (1);

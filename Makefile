@@ -19,6 +19,12 @@ P_INC = inc/
 P_OBJ = .obj/
 LIBFT_DIR = Libft/
 LIBFT = $(LIBFT_DIR)libft.a
+RAYLIB_REPO = https://github.com/raysan5/raylib.git
+RAYLIB_VERSION = 5.5
+RAYLIB_PATH = raylib/
+RAYLIB_DIR = $(RAYLIB_PATH)src/
+RAYLIB = $(RAYLIB_DIR)libraylib.a
+LIBS = -L $(LIBFT_DIR) -lft -L $(RAYLIB_DIR) -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 
 #############################################################################################
 #                                                                                           #
@@ -26,7 +32,7 @@ LIBFT = $(LIBFT_DIR)libft.a
 #                                                                                           #
 #############################################################################################
 
-SRC = main.c check_args.c grid.c
+SRC = main.c check_args.c grid.c window.c
 
 #############################################################################################
 #                                                                                           #
@@ -51,14 +57,14 @@ DEPS = $(OBJS:%.o=%.d)
 
 all: $(NAME)
 
-$(NAME): $(LIBFT) $(OBJS)
-	@$(CC) $(CFLAGS) -o $@ $(OBJS) -L $(LIBFT_DIR) -lft && \
+$(NAME): $(LIBFT) $(RAYLIB) $(OBJS)
+	@$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS) && \
 	echo "$(Green)Creating executable $@$(Color_Off)" || \
 	echo "$(Red)Error creating $@$(Color_Off)"
 
-$(P_OBJ)%.o: $(P_SRC)%.c
+$(P_OBJ)%.o: $(P_SRC)%.c | $(RAYLIB)
 	@mkdir -p $(dir $@)
-	@$(CC) $(CFLAGS) -I $(P_INC) -I $(LIBFT_DIR) -c $< -o $@ && \
+	@$(CC) $(CFLAGS) -I $(P_INC) -I $(LIBFT_DIR) -I $(RAYLIB_DIR) -c $< -o $@ && \
 	echo "$(Cyan)Compiling $<$(Color_Off)" || \
 	echo "$(Red)Error compiling $<$(Color_Off)"
 
@@ -66,6 +72,15 @@ $(LIBFT): FORCE
 	@$(MAKE) -C $(LIBFT_DIR)
 
 FORCE:
+
+$(RAYLIB):
+	@if [ ! -d $(RAYLIB_PATH) ]; then \
+		echo "$(Yellow)Downloading raylib $(RAYLIB_VERSION)$(Color_Off)"; \
+		git clone -q --depth 1 --branch $(RAYLIB_VERSION) -c advice.detachedHead=false $(RAYLIB_REPO) $(RAYLIB_PATH) && \
+		rm -rf $(RAYLIB_PATH).git; \
+	fi
+	@echo "$(Yellow)Compiling raylib$(Color_Off)"
+	@$(MAKE) -C $(RAYLIB_DIR) PLATFORM=PLATFORM_DESKTOP > /dev/null 2>&1
 
 #############################################################################################
 #                                                                                           #
@@ -80,6 +95,7 @@ clean:
 
 clean-bin:
 	@$(MAKE) -C $(LIBFT_DIR) fclean
+	@if [ -d $(RAYLIB_DIR) ]; then $(MAKE) -C $(RAYLIB_DIR) clean > /dev/null; fi
 	rm -f $(NAME)
 
 clean-obj:

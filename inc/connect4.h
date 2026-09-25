@@ -20,4 +20,7 @@ int		init_game(t_game *game, int rows, int columns);
 void	free_grid(char **grid, int rows);
 void	free_game(t_game *game);
 
+/* window.c */
+void	draw_grid(t_game *game);
+
 #endif
