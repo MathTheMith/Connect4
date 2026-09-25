@@ -1,5 +1,5 @@
 
-.PHONY : all fclean re bonus clean-bin clean-obj FORCE
+.PHONY : all fclean fclean-all re bonus clean-bin clean-obj FORCE
 CC = cc
 CFLAGS = -Wextra -Wall -Werror -MMD -MP
 NO_DIR = --no-print-directory
@@ -60,13 +60,13 @@ all: $(NAME)
 $(NAME): $(LIBFT) $(RAYLIB) $(OBJS)
 	@$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS) && \
 	echo "$(Green)Creating executable $@$(Color_Off)" || \
-	echo "$(Red)Error creating $@$(Color_Off)"
+	{ echo "$(Red)Error creating $@$(Color_Off)"; exit 1; }
 
 $(P_OBJ)%.o: $(P_SRC)%.c | $(RAYLIB)
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) -I $(P_INC) -I $(LIBFT_DIR) -I $(RAYLIB_DIR) -c $< -o $@ && \
 	echo "$(Cyan)Compiling $<$(Color_Off)" || \
-	echo "$(Red)Error compiling $<$(Color_Off)"
+	{ echo "$(Red)Error compiling $<$(Color_Off)"; exit 1; }
 
 $(LIBFT): FORCE
 	@$(MAKE) -C $(LIBFT_DIR)
@@ -95,7 +95,6 @@ clean:
 
 clean-bin:
 	@$(MAKE) -C $(LIBFT_DIR) fclean
-	@if [ -d $(RAYLIB_DIR) ]; then $(MAKE) -C $(RAYLIB_DIR) clean > /dev/null; fi
 	rm -f $(NAME)
 
 clean-obj:
@@ -104,6 +103,9 @@ clean-obj:
 fclean:
 	@$(MAKE) clean-obj
 	@$(MAKE) clean-bin
+
+fclean-all: fclean
+	@if [ -d $(RAYLIB_DIR) ]; then $(MAKE) -C $(RAYLIB_DIR) clean > /dev/null; fi
 
 re:
 	@$(MAKE) fclean

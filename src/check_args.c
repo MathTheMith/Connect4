@@ -1,6 +1,5 @@
 #include "connect4.h"
 
-
 int	is_number(char *str)
 {
 	size_t	i;

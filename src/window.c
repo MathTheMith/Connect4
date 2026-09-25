@@ -48,9 +48,9 @@ void	draw_grid(t_game *game)
 	int j;
 	int	x;
 	int	y;
-	Vector2		mouse;
+	Vector2	mouse;
 	Color color;
-	bool player = true;
+	bool player = false;
 	cell = setup_window(game);
 	if (!cell)
 	{
@@ -63,11 +63,9 @@ void	draw_grid(t_game *game)
 		BeginDrawing();
 		ClearBackground(DARKBLUE);
 		j = 0;
-		y = cell / 2;
 		while (game->rows > j)
 		{
 			i = 0;
-			x = cell / 2;
 			while (game->columns > i)
 			{
 				color = BLUE;
@@ -75,7 +73,7 @@ void	draw_grid(t_game *game)
 					color = RED;
 				if (game->grid[j][i] == 'O')
 					color = YELLOW;
-				DrawCircle(i * cell + cell / 2, j * cell + cell /2, (cell - 1) / 2, color);
+				DrawCircle(i * cell + cell / 2, j * cell + cell /2, (cell * 0.97) / 2, color);
 				i++;
 			}
 			j++;
@@ -89,10 +87,7 @@ void	draw_grid(t_game *game)
 			if (game->grid[y][x] == '.')
 			{
 				player = !player;	
-				if (player)
-					game->grid[y][x] = 'X';
-				else
-					game->grid[y][x] = 'O';
+				game->grid[y][x] = player ? 'X' : 'O';
 			}
 		}
 		EndDrawing();
