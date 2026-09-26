@@ -48,7 +48,7 @@ bool	draw_gui_grid(t_game *game);
 void	draw_grid(t_game *game);
 
 /* rules.c */
-bool	check_connects(t_game *game, int x, int y);
+t_state	check_connects(t_game *game, int x, int y);
 t_state	get_game_state(t_game *game);
 
 /* game.c */

@@ -1,6 +1,6 @@
 #include "connect4.h"
 
-bool check_connects(t_game *game, int x, int y)
+t_state check_connects(t_game *game, int x, int y)
 {
 	char piece = game->grid[y][x];
 	int i = 0;
@@ -14,7 +14,9 @@ bool check_connects(t_game *game, int x, int y)
 			game->win_pos.dy = 1;
 			game->win_pos.x = x;
 			game->win_pos.y = y;
-			return true;
+			if (game->grid[y][x] == 'X')
+				return (WIN_X);
+			return (WIN_O);
 		}
 		i++;
 	}
@@ -29,7 +31,9 @@ bool check_connects(t_game *game, int x, int y)
 			game->win_pos.dy = -1;
 			game->win_pos.x = x;
 			game->win_pos.y = y;
-			return true;
+			if (game->grid[y][x] == 'X')
+				return (WIN_X);
+			return (WIN_O);
 		}
 		i++;
 	}
@@ -44,7 +48,9 @@ bool check_connects(t_game *game, int x, int y)
 			game->win_pos.dy = 0;
 			game->win_pos.x = x;
 			game->win_pos.y = y;
-			return true;
+			if (game->grid[y][x] == 'X')
+				return (WIN_X);
+			return (WIN_O);
 		}
 		i++;
 	}
@@ -59,12 +65,14 @@ bool check_connects(t_game *game, int x, int y)
 			game->win_pos.dy = 1;
 			game->win_pos.x = x;
 			game->win_pos.y = y;
-			return true;
+			if (game->grid[y][x] == 'X')
+				return (WIN_X);
+			return (WIN_O);
 		}
 		i++;
 	}
 
-	return false;
+	return PLAYING;
 }
 
 t_state	get_game_state(t_game *game)
@@ -80,7 +88,7 @@ t_state	get_game_state(t_game *game)
 		y = 0;
 		while (y < game->rows)
 		{
-			if (game->grid[y][x] != '.' && check_connects(game, x, y))
+			if (game->grid[y][x] != '.' && check_connects(game, x, y) != PLAYING)
 			{
 				if (game->grid[y][x] == 'X')
 					return (WIN_X);

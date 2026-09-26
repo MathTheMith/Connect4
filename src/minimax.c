@@ -128,15 +128,15 @@ void	remove_piece(t_game *game, int row, int col)
 	game->grid[row][col] = '.';
 }
 
-int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn)
+int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn, int row, int col)
 {
-	int	col;
-	int	row;
 	int	eval;
 	int max_eval;
 	int min_eval;
+	int	i = 0;
+	int	center_col = game->columns / 2;
 
-	t_state current_state = get_game_state(game);
+	t_state current_state = check_connects(game, row, col);
 	if (current_state == WIN_X)
 		return (10000 + depth);
 	if (current_state == WIN_O)
@@ -148,14 +148,15 @@ int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn)
 
 	if (is_ia_turn)
 	{
-		max_eval = INT_MIN;
+		max_eval = alpha;
 		col = 0;
-		while (col < game->columns)
+		while (i < game->columns)
 		{
+			col = center_col + (1 - 2 * (i % 2)) * (i + 1) / 2;
 			if (game->grid[0][col] == '.')
 			{
 				row = drop_piece(game, col, 'X');
-				eval = minimax(game, depth - 1, alpha, beta, 0);
+				eval = minimax(game, depth - 1, alpha, beta, 0, row, col);
 				remove_piece(game, row, col);
 
 				if (eval > max_eval)
@@ -165,7 +166,7 @@ int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn)
 				if (beta <= alpha)
 					break;
 			}
-			col++;
+			i++;
 		}
 		return (max_eval);
 	}
@@ -173,12 +174,13 @@ int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn)
 	{
 		min_eval = INT_MAX;
 		col = 0;
-		while (col < game->columns)
+		while (i < game->columns)
 		{
+			col = center_col + (1 - 2 * (i % 2)) * (i + 1) / 2;
 			if (game->grid[0][col] == '.')
 			{
 				row = drop_piece(game, col, 'O');
-				eval = minimax(game, depth - 1, alpha, beta, 1);
+				eval = minimax(game, depth - 1, alpha, beta, 1, row, col);
 				remove_piece(game, row, col);
 
 				if (eval < min_eval)
@@ -188,7 +190,7 @@ int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn)
 				if (beta <= alpha)
 					break;
 			}
-			col++;
+			i++;
 		}
 		return (min_eval);
 	}
@@ -196,21 +198,21 @@ int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn)
 
 int	get_best_move(t_game *game, int max_depth)
 {
-	int	best_score;
-	int	best_col;
+	int	best_score = INT_MIN;
+	int	best_col = 0;
 	int	score;
-	int	col;
+	int	col = 0;
 	int	row;
+	int	i = 0;
+	int	center_col = game->columns / 2;
 
-	best_score = INT_MIN;
-	best_col = 0;
-	col = 0;
-	while (col < game->columns)
+	while (i < game->columns)
 	{
+		col = center_col + (1 - 2 * (i % 2)) * (i + 1) / 2;
 		if (game->grid[0][col] == '.')
 		{
 			row = drop_piece(game, col, 'X');
-			score = minimax(game, max_depth - 1, INT_MIN, INT_MAX, 0);
+			score = minimax(game, max_depth - 1, INT_MIN, INT_MAX, 0, row, col);
 			remove_piece(game, row, col);
 			if (score >= best_score)
 			{
@@ -218,7 +220,7 @@ int	get_best_move(t_game *game, int max_depth)
 				best_col = col;
 			}
 		}
-		col++;
+		i++;
 	}
 	return best_col;
 }
