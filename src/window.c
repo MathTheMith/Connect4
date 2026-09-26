@@ -81,11 +81,16 @@ bool	title_screen(t_game *game)
 static bool	handle_click(t_game *game, int cell)
 {
 	int	x;
+	int	row;
 
 	x = GetMousePosition().x / cell;
 	if (x < 0 || x >= game->columns)
 		return (false);
-	return (drop_piece(game, x, game->current) != -1);
+	row = drop_piece(game, x, game->current);
+	if (row == -1)
+		return (false);
+	game->state = check_connects(game, x, row);
+	return (true);
 }
 
 static void	draw_result(t_game *game, int cell)
@@ -160,7 +165,6 @@ bool	draw_gui_grid(t_game *game)
 		if (game->state == PLAYING && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)
 			&& handle_click(game, cell))
 		{
-			game->state = get_game_state(game);
 			game->current = (game->current == 'X') ? 'O' : 'X';
 			redraw = true;
 		}

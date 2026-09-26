@@ -1,106 +1,64 @@
 #include "connect4.h"
 
-t_state check_connects(t_game *game, int x, int y)
+static int	count_side(t_game *game, int x, int y, int dx, int dy)
 {
-	char piece = game->grid[y][x];
-	int i = 0;
-	while(i < 4)
-	{
-		if ((y + i < 0 || y + i >= game->rows || x < 0 || x >= game->columns || game->grid[y + i][x] != piece))
-			break;
-		if (i == 3)
-		{
-			game->win_pos.dx = 0;
-			game->win_pos.dy = 1;
-			game->win_pos.x = x;
-			game->win_pos.y = y;
-			if (game->grid[y][x] == 'X')
-				return (WIN_X);
-			return (WIN_O);
-		}
-		i++;
-	}
-	i = 0;
-	while(i < 4)
-	{
-		if ((y - i < 0 || y - i >= game->rows || x - i< 0 || x- i >= game->columns || game->grid[y - i][x - i] != piece))
-			break;
-		if (i == 3)
-		{
-			game->win_pos.dx = -1;
-			game->win_pos.dy = -1;
-			game->win_pos.x = x;
-			game->win_pos.y = y;
-			if (game->grid[y][x] == 'X')
-				return (WIN_X);
-			return (WIN_O);
-		}
-		i++;
-	}
-	i = 0;
-	while(i < 4)
-	{
-		if ((y < 0 || y >= game->rows || x + i< 0 || x + i >= game->columns || game->grid[y][x + i] != piece))
-			break;
-		if (i == 3)
-		{
-			game->win_pos.dx = 1;
-			game->win_pos.dy = 0;
-			game->win_pos.x = x;
-			game->win_pos.y = y;
-			if (game->grid[y][x] == 'X')
-				return (WIN_X);
-			return (WIN_O);
-		}
-		i++;
-	}
-	i = 0;
-	while(i < 4)
-	{
-		if ((y + i < 0 || y + i >= game->rows || x - i < 0 || x - i >= game->columns || game->grid[y + i][x - i] != piece))
-			break;
-		if (i == 3)
-		{
-			game->win_pos.dx = -1;
-			game->win_pos.dy = 1;
-			game->win_pos.x = x;
-			game->win_pos.y = y;
-			if (game->grid[y][x] == 'X')
-				return (WIN_X);
-			return (WIN_O);
-		}
-		i++;
-	}
+	char	piece;
+	int		count;
 
-	return PLAYING;
+	piece = game->grid[y][x];
+	count = 0;
+	x += dx;
+	y += dy;
+	while (y >= 0 && y < game->rows && x >= 0 && x < game->columns
+		&& game->grid[y][x] == piece)
+	{
+		count++;
+		x += dx;
+		y += dy;
+	}
+	return (count);
 }
 
-t_state	get_game_state(t_game *game)
+static bool	check_axis(t_game *game, int x, int y, int dx, int dy)
+{
+	int	before;
+	int	after;
+
+	before = count_side(game, x, y, -dx, -dy);
+	after = count_side(game, x, y, dx, dy);
+	if (before + 1 + after < 4)
+		return (false);
+	game->win_pos.x = x - before * dx;
+	game->win_pos.y = y - before * dy;
+	game->win_pos.dx = dx;
+	game->win_pos.dy = dy;
+	return (true);
+}
+
+static bool	is_full(t_game *game)
 {
 	int	x;
-	int	y;
-	bool full;
 
-	full = true;
 	x = 0;
 	while (x < game->columns)
 	{
-		y = 0;
-		while (y < game->rows)
-		{
-			if (game->grid[y][x] != '.' && check_connects(game, x, y) != PLAYING)
-			{
-				if (game->grid[y][x] == 'X')
-					return (WIN_X);
-				return (WIN_O);
-			}
-			if (game->grid[y][x] == '.')
-				full = false;
-			y++;
-		}
+		if (game->grid[0][x] == '.')
+			return (false);
 		x++;
 	}
-	if (full)
+	return (true);
+}
+
+t_state	check_connects(t_game *game, int x, int y)
+{
+	if (check_axis(game, x, y, 1, 0) || check_axis(game, x, y, 0, 1)
+		|| check_axis(game, x, y, 1, 1) || check_axis(game, x, y, 1, -1))
+	{
+		if (game->grid[y][x] == 'X')
+			return (WIN_X);
+		return (WIN_O);
+	}
+	if (is_full(game))
 		return (DRAW);
 	return (PLAYING);
 }

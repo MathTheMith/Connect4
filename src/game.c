@@ -56,7 +56,7 @@ bool	get_placement(t_game *game)
 			col = ft_atoi(response) - 1;
 		free(response);
 	}
-	drop_piece(game, col, game->current);
+	game->state = check_connects(game, col, drop_piece(game, col, game->current));
 	return (true);
 }
 
@@ -82,11 +82,11 @@ void	play_terminal(t_game *game)
 				game->state = QUIT;
 			game->current = (game->current == 'X') ? 'O' : 'X';		
 		}
-		if (game->current == 'X')
+		if (game->current == 'X' && game->state == PLAYING)
 		{
 			choose_column = get_best_move(game, 3);
-			drop_piece(game, choose_column, game->current);
-			game->state = get_game_state(game);
+			game->state = check_connects(game, choose_column,
+					drop_piece(game, choose_column, game->current));
 			game->current = (game->current == 'X') ? 'O' : 'X';
 		}
 	}
