@@ -2,6 +2,7 @@
 #define RED "\033[0;31m"
 #define YELLOW "\033[0;33m"
 # define RESET "\033[0m"
+#define WIN_COLOR "\033[1;34m"
 
 static void   print_border(int columns)
 {
@@ -21,6 +22,23 @@ static void print_cell(char *piece, char *color)
 	ft_putendl_fd(RESET, 1, false);
 }
 
+static bool	is_winning_cell(t_game *game, int col, int row)
+{
+	int	i;
+
+	if (game->state != WIN_X && game->state != WIN_O)
+		return (false);
+	i = 0;
+	while (i < 4)
+	{
+		if (game->win_pos.x + i * game->win_pos.dx == col
+			&& game->win_pos.y + i * game->win_pos.dy == row)
+			return (true);
+		i++;
+	}
+	return (false);
+}
+
 void draw_grid(t_game *game)
 {
 	int i = 0;
@@ -34,7 +52,9 @@ void draw_grid(t_game *game)
 		ft_putendl_fd("| ", 1, false);
 		while(i < game->columns)
 		{
-			if(game->grid[j][i] == 'X' || game->grid[j][i] == 'O')
+			if (is_winning_cell(game, i, j))
+				print_cell(game->grid[j][i] == 'X' ? "X" : "O", WIN_COLOR);
+			else if(game->grid[j][i] == 'X' || game->grid[j][i] == 'O')
 				print_cell(game->grid[j][i] == 'X' ? "X" : "O",
 					game->grid[j][i] == 'X' ? RED : YELLOW);
 			else

@@ -26,7 +26,7 @@ static int	setup_window(t_game *game)
 	int	cell;
 	int	win_w;
 	int	win_h;
-
+	SetTraceLogLevel(LOG_NONE);
 	InitWindow(800, 600, "Connect 4");
 	monitor = GetCurrentMonitor();
 	cell = get_cell_size(game, monitor);
@@ -41,26 +41,39 @@ static int	setup_window(t_game *game)
 	return (cell);
 }
 
-static bool	handle_click(t_game *game, int cell, bool *player)
+static bool	handle_click(t_game *game, int cell)
 {
-	Vector2	mouse;
+	int	x;
+
+	x = GetMousePosition().x / cell;
+	if (x < 0 || x >= game->columns)
+		return (false);
+	return (drop_piece(game, x, game->current) != -1);
+}
+
+static void	draw_result(t_game *game, int cell)
+{
+	char	*msg;
+	int		size;
+	int		width;
 	int		x;
 	int		y;
 
-	mouse = GetMousePosition();
-	x = mouse.x / cell;
-	y = 0;
-
-	while((y < game->rows && game->grid[y][x] == '.' ) || y == 0)
-		y++;
-	y-=1;
-	if(game->grid[y][x] == '.')
-	{
-		game->grid[y][x] = *player ? 'X' : 'O';
-		*player = !*player;
-		return true;
-	}
-	return false;
+	msg = "It's a draw !";
+	if (game->state == WIN_X)
+		msg = "Player X won !";
+	else if (game->state == WIN_O)
+		msg = "Player O won !";
+	size = cell / 2;
+	if (size < 20)
+		size = 20;
+	width = MeasureText(msg, size);
+	x = (GetScreenWidth() - width) / 2;
+	y = (GetScreenHeight() - size) / 2;
+	DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.4));
+	DrawRectangle(x - size / 2, y - size / 2, width + size, size * 2,
+		Fade(BLACK, 0.8));
+	DrawText(msg, x, y, size, RAYWHITE);
 }
 
 void draw_board(t_game *game, int cell)
@@ -86,43 +99,42 @@ void draw_board(t_game *game, int cell)
 	}
 }
 
-void	draw_gui_grid(t_game *game)
+bool	draw_gui_grid(t_game *game)
 {
-	int	cell;
-	bool old_move = true;
-	bool move = true;
-	bool player = true;
+	int		cell;
+	bool	redraw;
+
 	cell = setup_window(game);
 	if (!cell)
 	{
 		CloseWindow();
 		ft_putendl_fd("Grid too large to be displayed in a window !", 2, true);
-		return ;
+		return (false);
 	}
+	redraw = true;
 	while (!WindowShouldClose())
 	{
-		BeginDrawing();
-		if (!(is_finished(game)))
+		if (game->state == PLAYING && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)
+			&& handle_click(game, cell))
 		{
-			if (move == old_move)
-			{
-				ClearBackground(DARKBLUE);
-				move = !move;
-				draw_board(game, cell);
-				draw_grid(game);
-
-			}
-			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && handle_click(game, cell, &player))
-				move = !move;
+			game->state = get_game_state(game);
+			game->current = (game->current == 'X') ? 'O' : 'X';
+			redraw = true;
 		}
-		else
+		if (redraw)
 		{
 			draw_grid(game);
-			draw_board(game, cell);
-			return;
+			redraw = false;
 		}
-
+		BeginDrawing();
+		ClearBackground(DARKBLUE);
+		draw_board(game, cell);
+		if (game->state != PLAYING)
+			draw_result(game, cell);
 		EndDrawing();
 	}
+	if (game->state == PLAYING)
+		game->state = QUIT;
 	CloseWindow();
+	return (true);
 }

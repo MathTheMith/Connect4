@@ -42,7 +42,13 @@ bool check_connects(t_game *game, int x, int y)
 		if ((y + i < 0 || y + i >= game->rows || x < 0 || x >= game->columns || game->grid[y + i][x] != piece))
 			break;
 		if (i == 3)
+		{
+			game->win_pos.dx = 0;
+			game->win_pos.dy = 1;
+			game->win_pos.x = x;
+			game->win_pos.y = y;
 			return true;
+		}
 		i++;
 	}
 	i = 0;
@@ -51,7 +57,13 @@ bool check_connects(t_game *game, int x, int y)
 		if ((y - i < 0 || y - i >= game->rows || x - i< 0 || x- i >= game->columns || game->grid[y - i][x - i] != piece))
 			break;
 		if (i == 3)
+		{
+			game->win_pos.dx = -1;
+			game->win_pos.dy = -1;
+			game->win_pos.x = x;
+			game->win_pos.y = y;
 			return true;
+		}
 		i++;
 	}
 	i = 0;
@@ -60,7 +72,13 @@ bool check_connects(t_game *game, int x, int y)
 		if ((y < 0 || y >= game->rows || x + i< 0 || x + i >= game->columns || game->grid[y][x + i] != piece))
 			break;
 		if (i == 3)
+		{
+			game->win_pos.dx = 1;
+			game->win_pos.dy = 0;
+			game->win_pos.x = x;
+			game->win_pos.y = y;
 			return true;
+		}
 		i++;
 	}
 	i = 0;
@@ -69,34 +87,50 @@ bool check_connects(t_game *game, int x, int y)
 		if ((y + i < 0 || y + i >= game->rows || x - i < 0 || x - i >= game->columns || game->grid[y + i][x - i] != piece))
 			break;
 		if (i == 3)
+		{
+			game->win_pos.dx = -1;
+			game->win_pos.dy = 1;
+			game->win_pos.x = x;
+			game->win_pos.y = y;
 			return true;
+		}
 		i++;
 	}
-
 
 	return false;
 }
 
-
-bool is_finished(t_game *game)
+t_state	get_game_state(t_game *game)
 {
-	int x = 0;
-	int y = 0;
+	int	x;
+	int	y;
+	bool full;
 
-	while(x < game->columns)
+	full = true;
+	x = 0;
+	while (x < game->columns)
 	{
 		y = 0;
-		while(y < game->rows)
+		while (y < game->rows)
 		{
 			if (game->grid[y][x] != '.' && check_connects(game, x, y))
-				return true;
+			{
+				if (game->grid[y][x] == 'X')
+					return (WIN_X);
+				return (WIN_O);
+			}
+			if (game->grid[y][x] == '.')
+				full = false;
 			y++;
 		}
 		x++;
 	}
-	return false;
+	if (full)
+		return (DRAW);
+	return (PLAYING);
 }
-bool	get_placement(t_game *game, bool player)
+
+bool	get_placement(t_game *game)
 {
 	char	*response;
 	int		col;
@@ -104,7 +138,9 @@ bool	get_placement(t_game *game, bool player)
 	col = -1;
 	while (col == -1)
 	{
-		ft_putendl_fd("Place a piece between 1-", 1, false);
+		ft_putendl_fd("Player ", 1, false);
+		ft_putendl_fd(game->current == 'X' ? "X" : "O", 1, false);
+		ft_putendl_fd(", place a piece between 1-", 1, false);
 		ft_putnbr_fd(game->columns, 1);
 		ft_putendl_fd(": ", 1, false);
 		response = get_next_line(0);
@@ -117,21 +153,41 @@ bool	get_placement(t_game *game, bool player)
 			col = ft_atoi(response) - 1;
 		free(response);
 	}
-	drop_piece(game, col, player ? 'X' : 'O');
+	drop_piece(game, col, game->current);
 	return (true);
 }
 
-void finish_line(bool player)
+static void	print_result(t_game *game)
 {
-	ft_putendl_fd("Player ", 1, false);
-	ft_putendl_fd(player ? "O" : "X", 1, false);
-	ft_putendl_fd(" Won !", 1, true);
+	if (game->state == WIN_X)
+		ft_putendl_fd("Player X won !", 1, true);
+	else if (game->state == WIN_O)
+		ft_putendl_fd("Player O won !", 1, true);
+	else if (game->state == DRAW)
+		ft_putendl_fd("It's a draw !", 1, true);
+}
+
+static void	play_terminal(t_game *game)
+{
+	while (game->state == PLAYING)
+	{
+		draw_grid(game);
+		if (!get_placement(game))
+			game->state = QUIT;
+		else
+		{
+			game->state = get_game_state(game);
+			game->current = (game->current == 'X') ? 'O' : 'X';
+		}
+	}
+	if (game->state != QUIT)
+		draw_grid(game);
 }
 
 int	main(int ac, char **av)
 {
 	t_game	game;
-	bool player = true;
+
 	if (!check_args(ac, av))
 		return (1);
 	if (!init_game(&game, ft_atoi(av[1]), ft_atoi(av[2])))
@@ -139,25 +195,9 @@ int	main(int ac, char **av)
 		ft_putendl_fd("Error: grid allocation failed !", 2, true);
 		return (1);
 	}
-	if (ac == 4)
-	{
-		draw_gui_grid(&game);
-		if (!is_finished(&game))
-			return 1;
-		player = !player;
-	}
-	else
-	{
-		while(!is_finished(&game))
-		{
-			draw_grid(&game);
-			if (!get_placement(&game, player))
-				break ;
-			player = !player;
-		}
-		draw_grid(&game);
-	}
-	finish_line(player);
+	if (ac != 4 || !draw_gui_grid(&game))
+		play_terminal(&game);
+	print_result(&game);
 	free_game(&game);
 	return (0);
 }

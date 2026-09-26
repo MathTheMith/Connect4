@@ -24,6 +24,8 @@ int	init_game(t_game *game, int rows, int columns)
 
 	game->rows = rows;
 	game->columns = columns;
+	game->current = 'X';
+	game->state = PLAYING;
 	game->grid = malloc(sizeof(char *) * rows);
 	if (!game->grid)
 		return (0);
