@@ -84,7 +84,7 @@ void	play_terminal(t_game *game)
 		}
 		if (game->current == 'X')
 		{
-			choose_column = get_best_move(game, 10);
+			choose_column = get_best_move(game, 3);
 			drop_piece(game, choose_column, game->current);
 			game->state = get_game_state(game);
 			game->current = (game->current == 'X') ? 'O' : 'X';

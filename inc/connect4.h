@@ -23,6 +23,9 @@ typedef struct s_win
 
 typedef struct s_game
 {
+	int		top_row;
+	int		min_col;
+	int		max_col;
 	int		rows;
 	int		columns;
 	char	**grid;

@@ -39,8 +39,11 @@ int	evaluate_board(t_game *game)
 	int		c;
 	int		i;
 	char	window[4];
+	int		r_lo = game->top_row - 3 < 0 ? 0 : game->top_row - 3;
+	int		c_lo = game->min_col - 6 < 0 ? 0 : game->min_col - 6;
+	int		c_hi = game->max_col + 6 >= game->columns ? game->columns - 1 : game->max_col + 6;
 
-	r = 0;
+	r = r_lo;
 	while (r < game->rows)
 	{
 		if (game->grid[r][center_col] == 'X')
@@ -48,11 +51,11 @@ int	evaluate_board(t_game *game)
 		r++;
 	}
 
-	r = 0;
+	r = r_lo;
 	while (r < game->rows)
 	{
-		c = 0;
-		while (c < game->columns - 3)
+		c = c_lo;
+		while (c <= c_hi - 3)
 		{
 			i = 0;
 			while (i < 4)
@@ -66,10 +69,10 @@ int	evaluate_board(t_game *game)
 		r++;
 	}
 
-	c = 0;
-	while (c < game->columns)
+	c = c_lo;
+	while (c <= c_hi)
 	{
-		r = 0;
+		r = r_lo;
 		while (r < game->rows - 3)
 		{
 			i = 0;
@@ -84,11 +87,11 @@ int	evaluate_board(t_game *game)
 		c++;
 	}
 
-	r = 0;
+	r = r_lo;
     while (r < game->rows - 3)
     {
-        c = 0;
-        while (c < game->columns - 3)
+        c = c_lo;
+        while (c <= c_hi - 3)
         {
             i = 0;
             while (i < 4)
@@ -102,11 +105,11 @@ int	evaluate_board(t_game *game)
         r++;
     }
 
-    r = 3;
+    r = r_lo > 3 ? r_lo : 3;
     while (r < game->rows)
     {
-        c = 0;
-        while (c < game->columns - 3)
+        c = c_lo;
+        while (c <= c_hi - 3)
         {
             i = 0;
             while (i < 4)
@@ -135,8 +138,7 @@ int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn, int r
 	int min_eval;
 	int	i = 0;
 	int	center_col = game->columns / 2;
-
-	t_state current_state = check_connects(game, row, col);
+	t_state current_state = check_connects(game, col, row);
 	if (current_state == WIN_X)
 		return (10000 + depth);
 	if (current_state == WIN_O)
@@ -149,11 +151,11 @@ int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn, int r
 	if (is_ia_turn)
 	{
 		max_eval = alpha;
-		col = 0;
 		while (i < game->columns)
 		{
 			col = center_col + (1 - 2 * (i % 2)) * (i + 1) / 2;
-			if (game->grid[0][col] == '.')
+			if (col >= game->min_col - 3 && col <= game->max_col + 3
+				&& game->grid[0][col] == '.')
 			{
 				row = drop_piece(game, col, 'X');
 				eval = minimax(game, depth - 1, alpha, beta, 0, row, col);
@@ -173,11 +175,11 @@ int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn, int r
 	else
 	{
 		min_eval = INT_MAX;
-		col = 0;
 		while (i < game->columns)
 		{
 			col = center_col + (1 - 2 * (i % 2)) * (i + 1) / 2;
-			if (game->grid[0][col] == '.')
+			if (col >= game->min_col - 3 && col <= game->max_col + 3
+				&& game->grid[0][col] == '.')
 			{
 				row = drop_piece(game, col, 'O');
 				eval = minimax(game, depth - 1, alpha, beta, 1, row, col);
@@ -196,6 +198,36 @@ int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn, int r
 	}
 }
 
+static void	set_zone(t_game *game, int max_depth)
+{
+	int	r;
+	int	c;
+
+	game->top_row = game->rows;
+	game->min_col = game->columns;
+	game->max_col = -1;
+	r = 0;
+	while (r < game->rows)
+	{
+		c = 0;
+		while (c < game->columns)
+		{
+			if (game->grid[r][c] != '.')
+			{
+				if (r < game->top_row)
+					game->top_row = r;
+				if (c < game->min_col)
+					game->min_col = c;
+				if (c > game->max_col)
+					game->max_col = c;
+			}
+			c++;
+		}
+		r++;
+	}
+	game->top_row -= max_depth;
+}
+
 int	get_best_move(t_game *game, int max_depth)
 {
 	int	best_score = INT_MIN;
@@ -206,15 +238,19 @@ int	get_best_move(t_game *game, int max_depth)
 	int	i = 0;
 	int	center_col = game->columns / 2;
 
+	set_zone(game, max_depth);
+	if (game->max_col == -1)
+		return (center_col);
 	while (i < game->columns)
 	{
 		col = center_col + (1 - 2 * (i % 2)) * (i + 1) / 2;
-		if (game->grid[0][col] == '.')
+		if (col >= game->min_col - 3 && col <= game->max_col + 3
+			&& game->grid[0][col] == '.')
 		{
 			row = drop_piece(game, col, 'X');
 			score = minimax(game, max_depth - 1, INT_MIN, INT_MAX, 0, row, col);
 			remove_piece(game, row, col);
-			if (score >= best_score)
+			if (score > best_score)
 			{
 				best_score = score;
 				best_col = col;
@@ -222,5 +258,7 @@ int	get_best_move(t_game *game, int max_depth)
 		}
 		i++;
 	}
+	while (best_score == INT_MIN && game->grid[0][best_col] != '.')
+		best_col++;
 	return best_col;
 }

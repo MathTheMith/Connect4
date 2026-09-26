@@ -41,6 +41,43 @@ static int	setup_window(t_game *game)
 	return (cell);
 }
 
+static void	draw_centered(char *msg, int y, int size, Color color)
+{
+	DrawText(msg, (GetScreenWidth() - MeasureText(msg, size)) / 2, y, size,
+		color);
+}
+
+bool	title_screen(t_game *game)
+{
+	bool	started;
+	int		size;
+
+	started = false;
+	int i = 0;
+	while (!WindowShouldClose())
+	{
+		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+			started = true;
+		size = GetScreenWidth() / 10;
+		BeginDrawing();
+		ClearBackground(DARKBLUE);
+		draw_centered("CONNECT 4", GetScreenHeight() / 4, size, RAYWHITE);
+		if (game->current == 'X')
+			draw_centered("Red (X) starts", GetScreenHeight() / 2, size / 3, RED);
+		else
+			draw_centered("Yellow (O) starts", GetScreenHeight() / 2,
+				size / 3, YELLOW);
+		i++;
+		if ((i / 45) % 2 == 0 )
+			draw_centered("Click anywhere to begin", GetScreenHeight() * 3 / 4,
+				size / 2, RAYWHITE);
+		EndDrawing();
+		if (started)
+			return (true);
+	}
+	return (false);
+}
+
 static bool	handle_click(t_game *game, int cell)
 {
 	int	x;
@@ -110,6 +147,12 @@ bool	draw_gui_grid(t_game *game)
 		CloseWindow();
 		ft_putendl_fd("Grid too large to be displayed in a window !", 2, true);
 		return (false);
+	}
+	if (!title_screen(game))
+	{
+		game->state = QUIT;
+		CloseWindow();
+		return (true);
 	}
 	redraw = true;
 	while (!WindowShouldClose())
