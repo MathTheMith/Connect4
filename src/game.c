@@ -70,9 +70,21 @@ void	print_result(t_game *game)
 		ft_putendl_fd("It's a draw !", 1, true);
 }
 
+void	ai_play(t_game *game)
+{
+	int	col;
+
+	ft_putendl_fd("AI is thinking...", 1, true);
+	col = get_best_move(game, 10);
+	game->state = check_connects(game, col, drop_piece(game, col, game->current));
+	ft_putendl_fd("AI played column ", 1, false);
+	ft_putnbr_fd(col + 1, 1);
+	ft_putendl_fd("", 1, true);
+	game->current = (game->current == 'X') ? 'O' : 'X';
+}
+
 void	play_terminal(t_game *game)
 {
-	int choose_column;
 	while (game->state == PLAYING)
 	{
 		draw_grid(game);
@@ -83,12 +95,7 @@ void	play_terminal(t_game *game)
 			game->current = (game->current == 'X') ? 'O' : 'X';		
 		}
 		if (game->current == 'X' && game->state == PLAYING)
-		{
-			choose_column = get_best_move(game, 3);
-			game->state = check_connects(game, choose_column,
-					drop_piece(game, choose_column, game->current));
-			game->current = (game->current == 'X') ? 'O' : 'X';
-		}
+			ai_play(game);
 	}
 	if (game->state != QUIT)
 		draw_grid(game);

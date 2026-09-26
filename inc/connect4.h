@@ -57,6 +57,7 @@ t_state	check_connects(t_game *game, int x, int y);
 int		check_answer(char *response, t_game *game);
 bool	get_placement(t_game *game);
 void	print_result(t_game *game);
+void	ai_play(t_game *game);
 void	play_terminal(t_game *game);
 
 int	get_best_move(t_game *game, int max_depth);

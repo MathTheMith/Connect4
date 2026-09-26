@@ -90,7 +90,21 @@ static bool	handle_click(t_game *game, int cell)
 	if (row == -1)
 		return (false);
 	game->state = check_connects(game, x, row);
+	ft_putendl_fd("You played column ", 1, false);
+	ft_putnbr_fd(x + 1, 1);
+	ft_putendl_fd("", 1, true);
 	return (true);
+}
+
+static void	draw_thinking(int cell)
+{
+	int	size;
+
+	size = cell / 3;
+	if (size < 16)
+		size = 16;
+	DrawRectangle(0, 0, GetScreenWidth(), size * 2, Fade(BLACK, 0.6));
+	draw_centered("AI is thinking...", size / 2, size, RAYWHITE);
 }
 
 static void	draw_result(t_game *game, int cell)
@@ -162,15 +176,17 @@ bool	draw_gui_grid(t_game *game)
 	redraw = true;
 	while (!WindowShouldClose())
 	{
-		if (game->state == PLAYING && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)
-			&& handle_click(game, cell))
+		if (game->state == PLAYING && game->current == 'O'
+			&& IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && handle_click(game, cell))
 		{
-			game->current = (game->current == 'X') ? 'O' : 'X';
+			game->current = 'X';
 			redraw = true;
 		}
 		if (redraw)
 		{
 			draw_grid(game);
+			if (game->state == PLAYING && game->current == 'O')
+				ft_putendl_fd("Your turn: click a column in the window", 1, true);
 			redraw = false;
 		}
 		BeginDrawing();
@@ -178,7 +194,14 @@ bool	draw_gui_grid(t_game *game)
 		draw_board(game, cell);
 		if (game->state != PLAYING)
 			draw_result(game, cell);
+		else if (game->current == 'X')
+			draw_thinking(cell);
 		EndDrawing();
+		if (game->state == PLAYING && game->current == 'X')
+		{
+			ai_play(game);
+			redraw = true;
+		}
 	}
 	if (game->state == PLAYING)
 		game->state = QUIT;
