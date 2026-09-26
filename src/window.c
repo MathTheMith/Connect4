@@ -63,12 +63,32 @@ static bool	handle_click(t_game *game, int cell, bool *player)
 	return false;
 }
 
+void draw_board(t_game *game, int cell)
+{
+	int i;
+	int j;
+	j = 0;
+	Color color;
+	while (game->rows > j)
+	{
+		i = 0;
+		while (game->columns > i)
+		{
+			color = BLUE;
+			if (game->grid[j][i] == 'X')
+				color = RED;
+			if (game->grid[j][i] == 'O')
+				color = YELLOW;
+			DrawCircle(i * cell + cell / 2, j * cell + cell /2, (cell * 0.97) / 2, color);
+			i++;
+		}
+		j++;
+	}
+}
+
 void	draw_gui_grid(t_game *game)
 {
 	int	cell;
-	int	i;
-	int j;
-	Color color;
 	bool old_move = true;
 	bool move = true;
 	bool player = true;
@@ -82,30 +102,26 @@ void	draw_gui_grid(t_game *game)
 	while (!WindowShouldClose())
 	{
 		BeginDrawing();
-		if (move == old_move)
+		if (!(is_finished(game)))
 		{
-			ClearBackground(DARKBLUE);
-			move = !move;
-			j = 0;
-			while (game->rows > j)
+			if (move == old_move)
 			{
-				i = 0;
-				while (game->columns > i)
-				{
-					color = BLUE;
-					if (game->grid[j][i] == 'X')
-						color = RED;
-					if (game->grid[j][i] == 'O')
-						color = YELLOW;
-					DrawCircle(i * cell + cell / 2, j * cell + cell /2, (cell * 0.97) / 2, color);
-					i++;
-				}
-				j++;
-			}
-			draw_grid(game);
-		}
-		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && handle_click(game, cell, &player))
+				ClearBackground(DARKBLUE);
 				move = !move;
+				draw_board(game, cell);
+				draw_grid(game);
+
+			}
+			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && handle_click(game, cell, &player))
+				move = !move;
+		}
+		else
+		{
+			draw_grid(game);
+			draw_board(game, cell);
+			return;
+		}
+
 		EndDrawing();
 	}
 	CloseWindow();

@@ -19,11 +19,14 @@ int	check_args(int ac, char **av);
 int		init_game(t_game *game, int rows, int columns);
 void	free_grid(char **grid, int rows);
 void	free_game(t_game *game);
+int		drop_piece(t_game *game, int col, char piece);
 
 /* window.c */
 void	draw_gui_grid(t_game *game);
 
 /* draw.c */
 void	draw_grid(t_game *game);
+
+bool is_finished(t_game *game);
 
 #endif

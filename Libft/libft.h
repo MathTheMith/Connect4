@@ -17,6 +17,7 @@
 # include <limits.h>
 #include <stdbool.h>
 # include <unistd.h>
+# include "get_next_line.h"
 
 int		ft_atoi(const char *nptr);
 int		ft_isdigit(int c);
@@ -24,5 +25,6 @@ void	*ft_memset(void *s, int c, size_t n);
 size_t	ft_strlen(const char *s);
 int		ft_strncmp(const char *s1, const char *s2, size_t n);
 void	ft_putendl_fd(char *s, int fd, bool returns);
+void	ft_putnbr_fd(int n, int fd);
 
 #endif

@@ -42,3 +42,15 @@ int	init_game(t_game *game, int rows, int columns)
 	}
 	return (1);
 }
+
+int	drop_piece(t_game *game, int col, char piece)
+{
+	int	row;
+
+	row = game->rows - 1;
+	while (row >= 0 && game->grid[row][col] != '.')
+		row--;
+	if (row >= 0)
+		game->grid[row][col] = piece;
+	return (row);
+}
