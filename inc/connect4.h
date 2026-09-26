@@ -47,7 +47,14 @@ bool	draw_gui_grid(t_game *game);
 /* draw.c */
 void	draw_grid(t_game *game);
 
-/* main.c */
+/* rules.c */
+bool	check_connects(t_game *game, int x, int y);
 t_state	get_game_state(t_game *game);
+
+/* game.c */
+int		check_answer(char *response, t_game *game);
+bool	get_placement(t_game *game);
+void	print_result(t_game *game);
+void	play_terminal(t_game *game);
 
 #endif

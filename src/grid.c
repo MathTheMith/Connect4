@@ -1,5 +1,6 @@
 #include "connect4.h"
-
+#include <stdlib.h>
+#include <time.h>
 void	free_grid(char **grid, int rows)
 {
 	int	i;
@@ -24,7 +25,8 @@ int	init_game(t_game *game, int rows, int columns)
 
 	game->rows = rows;
 	game->columns = columns;
-	game->current = 'X';
+    srand(time(NULL));
+	game->current = rand() % 2 == 0 ? 'X' : 'O';
 	game->state = PLAYING;
 	game->grid = malloc(sizeof(char *) * rows);
 	if (!game->grid)
