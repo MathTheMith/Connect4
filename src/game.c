@@ -41,9 +41,7 @@ bool	get_placement(t_game *game)
 	col = -1;
 	while (col == -1)
 	{
-		ft_putendl_fd("Player ", 1, false);
-		ft_putendl_fd(game->current == 'X' ? "X" : "O", 1, false);
-		ft_putendl_fd(", place a piece between 1-", 1, false);
+		ft_putendl_fd("Your turn, place a piece between 1-", 1, false);
 		ft_putnbr_fd(game->columns, 1);
 		ft_putendl_fd(": ", 1, false);
 		response = get_next_line(0);
@@ -63,9 +61,9 @@ bool	get_placement(t_game *game)
 void	print_result(t_game *game)
 {
 	if (game->state == WIN_X)
-		ft_putendl_fd("Player X won !", 1, true);
+		ft_putendl_fd("The AI won !", 1, true);
 	else if (game->state == WIN_O)
-		ft_putendl_fd("Player O won !", 1, true);
+		ft_putendl_fd("You won !", 1, true);
 	else if (game->state == DRAW)
 		ft_putendl_fd("It's a draw !", 1, true);
 }
@@ -75,7 +73,7 @@ void	ai_play(t_game *game)
 	int	col;
 
 	ft_putendl_fd("AI is thinking...", 1, true);
-	col = get_best_move(game, 10);
+	col = get_best_move(game, 3);
 	game->state = check_connects(game, col, drop_piece(game, col, game->current));
 	ft_putendl_fd("AI played column ", 1, false);
 	ft_putnbr_fd(col + 1, 1);

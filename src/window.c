@@ -63,9 +63,10 @@ bool	title_screen(t_game *game)
 		ClearBackground(DARKBLUE);
 		draw_centered("CONNECT 4", GetScreenHeight() / 4, size, RAYWHITE);
 		if (game->current == 'X')
-			draw_centered("Red (X) starts", GetScreenHeight() / 2, size / 3, RED);
+			draw_centered("The AI (red) starts", GetScreenHeight() / 2, size / 3,
+				RED);
 		else
-			draw_centered("Yellow (O) starts", GetScreenHeight() / 2,
+			draw_centered("You (yellow) start", GetScreenHeight() / 2,
 				size / 3, YELLOW);
 		i++;
 		if ((i / 45) % 2 == 0 )
@@ -117,9 +118,9 @@ static void	draw_result(t_game *game, int cell)
 
 	msg = "It's a draw !";
 	if (game->state == WIN_X)
-		msg = "Player X won !";
+		msg = "The AI won !";
 	else if (game->state == WIN_O)
-		msg = "Player O won !";
+		msg = "You won !";
 	size = cell / 2;
 	if (size < 20)
 		size = 20;
