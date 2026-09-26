@@ -57,4 +57,6 @@ bool	get_placement(t_game *game);
 void	print_result(t_game *game);
 void	play_terminal(t_game *game);
 
+int	get_best_move(t_game *game, int max_depth);
+
 #endif

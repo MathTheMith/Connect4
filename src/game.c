@@ -72,13 +72,20 @@ void	print_result(t_game *game)
 
 void	play_terminal(t_game *game)
 {
+	int choose_column;
 	while (game->state == PLAYING)
 	{
 		draw_grid(game);
-		if (!get_placement(game))
-			game->state = QUIT;
-		else
+		if (game->current == 'O')
 		{
+			if (!get_placement(game))
+				game->state = QUIT;
+			game->current = (game->current == 'X') ? 'O' : 'X';		
+		}
+		if (game->current == 'X')
+		{
+			choose_column = get_best_move(game, 5);
+			drop_piece(game, choose_column, game->current);
 			game->state = get_game_state(game);
 			game->current = (game->current == 'X') ? 'O' : 'X';
 		}

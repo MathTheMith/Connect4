@@ -138,9 +138,9 @@ int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn)
 
 	t_state current_state = get_game_state(game);
 	if (current_state == WIN_X)
-		return (10000);
+		return (10000 + depth);
 	if (current_state == WIN_O)
-		return (-10000);
+		return (-10000 - depth);
 	if (current_state == DRAW)
 		return (0);
 	if (depth == 0)
