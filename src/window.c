@@ -41,7 +41,7 @@ static int	setup_window(t_game *game)
 	return (cell);
 }
 
-static void	handle_click(t_game *game, int cell, bool *player)
+static bool	handle_click(t_game *game, int cell, bool *player)
 {
 	Vector2	mouse;
 	int		x;
@@ -58,45 +58,54 @@ static void	handle_click(t_game *game, int cell, bool *player)
 	{
 		game->grid[y][x] = *player ? 'X' : 'O';
 		*player = !*player;
+		return true;
 	}
+	return false;
 }
 
-void	draw_grid(t_game *game)
+void	draw_gui_grid(t_game *game)
 {
 	int	cell;
 	int	i;
 	int j;
 	Color color;
+	bool old_move = true;
+	bool move = true;
 	bool player = true;
 	cell = setup_window(game);
 	if (!cell)
 	{
 		CloseWindow();
-		ft_putendl_fd("Grid too large to be displayed in a window !", 2);
+		ft_putendl_fd("Grid too large to be displayed in a window !", 2, true);
 		return ;
 	}
 	while (!WindowShouldClose())
 	{
 		BeginDrawing();
-		ClearBackground(DARKBLUE);
-		j = 0;
-		while (game->rows > j)
+		if (move == old_move)
 		{
-			i = 0;
-			while (game->columns > i)
+			ClearBackground(DARKBLUE);
+			move = !move;
+			j = 0;
+			while (game->rows > j)
 			{
-				color = BLUE;
-				if (game->grid[j][i] == 'X')
-					color = RED;
-				if (game->grid[j][i] == 'O')
-					color = YELLOW;
-				DrawCircle(i * cell + cell / 2, j * cell + cell /2, (cell * 0.97) / 2, color);
-				i++;
+				i = 0;
+				while (game->columns > i)
+				{
+					color = BLUE;
+					if (game->grid[j][i] == 'X')
+						color = RED;
+					if (game->grid[j][i] == 'O')
+						color = YELLOW;
+					DrawCircle(i * cell + cell / 2, j * cell + cell /2, (cell * 0.97) / 2, color);
+					i++;
+				}
+				j++;
 			}
-			j++;
+			draw_grid(game);
 		}
-		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-			handle_click(game, cell, &player);
+		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && handle_click(game, cell, &player))
+				move = !move;
 		EndDrawing();
 	}
 	CloseWindow();

@@ -32,7 +32,7 @@ LIBS = -L $(LIBFT_DIR) -lft -L $(RAYLIB_DIR) -lraylib -lGL -lm -lpthread -ldl -l
 #                                                                                           #
 #############################################################################################
 
-SRC = main.c check_args.c grid.c window.c
+SRC = main.c check_args.c grid.c window.c draw.c
 
 #############################################################################################
 #                                                                                           #
