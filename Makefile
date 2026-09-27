@@ -73,7 +73,7 @@ $(NAME): $(LIBFT) $(OBJS) $(OBJS_MANDATORY) $(if $(wildcard $(BONUS_FLAG)),FORCE
 
 bonus: $(BONUS_FLAG)
 
-$(BONUS_FLAG): $(LIBFT) $(RAYLIB) $(OBJS) $(OBJS_BONUS)
+$(BONUS_FLAG): $(LIBFT) $(RAYLIB) $(OBJS) $(OBJS_BONUS) $(if $(wildcard $(NAME)),,FORCE)
 	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(OBJS_BONUS) $(LIBS) $(LIBS_BONUS) && \
 	echo "$(Green)Creating executable $(NAME) (bonus)$(Color_Off)" || \
 	{ echo "$(Red)Error creating $(NAME)$(Color_Off)"; exit 1; }

@@ -28,14 +28,14 @@ int	check_args(int ac, char **av)
 		ft_putendl_fd("Arguments must be positive numbers !", 2, true);
 		return (0);
 	}
-	if (ft_atoi(av[1]) < 6)
+	if (ft_atoi(av[1]) < 6 || ft_atoi(av[1]) > 999)
 	{
-		ft_putendl_fd("First argument must be at least 6 !", 2, true);
+		ft_putendl_fd("First argument must be at least 6 and lower than 1000!", 2, true);
 		return (0);
 	}
 	if (ft_atoi(av[2]) < 7 || ft_atoi(av[2]) > 237)
 	{
-		ft_putendl_fd("Second argument must be at least 7 and lower than 237!", 2, true);
+		ft_putendl_fd("Second argument must be at least 7 and lower than 238!", 2, true);
 		return (0);
 	}
 	return (1);
