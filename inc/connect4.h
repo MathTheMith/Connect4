@@ -29,7 +29,6 @@ typedef struct s_lm
 
 typedef struct s_zone
 {
-	int	top_row;
 	int	min_col;
 	int	max_col;
 	int	score;
@@ -37,10 +36,8 @@ typedef struct s_zone
 
 typedef struct s_game
 {
-	int		temp_top_row;
 	int		temp_min_col;
 	int		temp_max_col; 
-	int		top_row;
 	int		min_col;
 	int		max_col;
 	int		rows;
@@ -59,7 +56,7 @@ int	is_number(char *str);
 int	check_args(int ac, char **av);
 
 /* minimax.c */
-void	set_zone(t_game *game, int max_depth);
+void	set_zone(t_game *game);
 
 /* grid.c */
 int		init_game(t_game *game, int rows, int columns);

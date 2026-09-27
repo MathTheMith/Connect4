@@ -79,7 +79,6 @@ static t_zone	save_zone(t_game *game)
 {
 	t_zone	zone;
 
-	zone.top_row = game->temp_top_row;
 	zone.min_col = game->temp_min_col;
 	zone.max_col = game->temp_max_col;
 	zone.score = game->score;
@@ -90,7 +89,6 @@ void	remove_piece(t_game *game, int row, int col, t_zone zone)
 {
 	game->moves_count--;
 	game->grid[row][col] = '.';
-	game->temp_top_row = zone.top_row;
 	game->temp_min_col = zone.min_col;
 	game->temp_max_col = zone.max_col;
 	game->score = zone.score;
@@ -166,12 +164,11 @@ int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn, int r
 	}
 }
 
-void	set_zone(t_game *game, int max_depth)
+void	set_zone(t_game *game)
 {
 	int	r;
 	int	c;
 
-	game->top_row = game->rows;
 	game->min_col = game->columns - 1;
 	game->max_col = 0;
 	r = 0;
@@ -182,8 +179,6 @@ void	set_zone(t_game *game, int max_depth)
 		{
 			if (game->grid[r][c] != '.')
 			{
-				if (r < game->top_row)
-					game->top_row = r;
 				if (c < game->min_col)
 					game->min_col = c;
 				if (c > game->max_col)
@@ -193,10 +188,8 @@ void	set_zone(t_game *game, int max_depth)
 		}
 		r++;
 	}
-	game->top_row -= max_depth;
 	game->temp_max_col = game->max_col;
 	game->temp_min_col = game->min_col;
-	game->temp_top_row = game->top_row;
 }
 
 int	get_best_move(t_game *game, int max_depth)
@@ -210,7 +203,6 @@ int	get_best_move(t_game *game, int max_depth)
 	int	center_col = game->columns / 2;
 	t_zone	zone;
 
-	set_zone(game, max_depth);
 	if (game->moves_count == 0)
 		return (center_col);
 	

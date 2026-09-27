@@ -26,14 +26,13 @@ int	init_game(t_game *game, int rows, int columns)
 	game->rows = rows;
 	game->columns = columns;
 	game->moves_count = 0;
-	game->top_row = rows;
 	game->min_col = columns - 1;
 	game->max_col = 0;
-	game->temp_top_row = game->top_row;
 	game->temp_min_col = game->min_col;
 	game->temp_max_col = game->max_col;
 	game->win_pos = (t_win){0, 0, 0, 0};
 	game->score = 0;
+	game->replay = (t_lm){-1, -1};
     srand(time(NULL));
 	game->current = rand() % 2 == 0 ? 'X' : 'O';
 	game->state = PLAYING;
@@ -69,8 +68,6 @@ int	drop_piece(t_game *game, int col, char piece)
 		game->score += move_score_delta(game, row, col, piece);
 		game->moves_count++;
 	}
-	if (row < game->temp_top_row)
-		game->temp_top_row = row;
 	if (col > game->temp_max_col)
 		game->temp_max_col = col;
 	if (col < game->temp_min_col)

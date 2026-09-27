@@ -115,7 +115,7 @@ void	ai_play(t_game *game)
 	int	col;
 
 	ft_putendl_fd("AI is thinking...", 1, true);
-	set_zone(game, 2);
+	set_zone(game);
 	col = get_best_move(game, get_depth(game));
 	game->state = check_connects(game, col, drop_piece(game, col, game->current));
 	ft_putendl_fd("AI played column ", 1, false);

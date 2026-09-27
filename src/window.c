@@ -156,22 +156,26 @@ void draw_board(t_game *game, int cell)
 	}
 }
 
-void undo_move(t_game *game)
+static void	undo_one(t_game *game, int col, char piece)
+{
+	int	row;
+
+	row = 0;
+	while (row < game->rows && game->grid[row][col] == '.')
+		row++;
+	if (row == game->rows)
+		return ;
+	game->score -= move_score_delta(game, row, col, piece);
+	game->grid[row][col] = '.';
+	game->moves_count--;
+}
+
+static void	undo_move(t_game *game)
 {
 	if (game->replay.col1 == -1 || game->replay.col2 == -1)
-		return;
-	game->moves_count -= 2;
-	int i = 0;
-	while (game->grid[i][game->replay.col1] == '.')
-		i++;
-	
-	game->grid[i][game->replay.col1] = '.';
-
-	i = 0;
-	while (game->grid[i][game->replay.col2] == '.')
-		i++;
-	
-	game->grid[i][game->replay.col2] = '.';
+		return ;
+	undo_one(game, game->replay.col2, 'X');
+	undo_one(game, game->replay.col1, 'O');
 	game->replay.col1 = -1;
 	game->replay.col2 = -1;
 }
@@ -195,8 +199,6 @@ bool	draw_gui_grid(t_game *game)
 		return (true);
 	}
 	redraw = true;
-	game->replay.col1 = -1;
-	game->replay.col2 = -1;
 	while (!WindowShouldClose())
 	{
 		if (game->state == PLAYING && game->current == 'O'
@@ -227,7 +229,10 @@ bool	draw_gui_grid(t_game *game)
 		}
 		if (game->moves_count > 1 && IsKeyPressed(KEY_BACKSPACE)
 			&& game->current == 'O' && game->state == PLAYING)
+		{
 			undo_move(game);
+			redraw = true;
+		}
 		if (game->state != PLAYING && IsKeyPressed(KEY_ENTER))
         {
             free_game(game);

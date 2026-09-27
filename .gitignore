@@ -1,6 +1,4 @@
 .obj/
-*bench/
-*.py
 *.o
 *.d
 *.a
@@ -8,4 +6,3 @@
 *.md
 connect4
 raylib/
-gmon.out
