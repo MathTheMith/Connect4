@@ -126,16 +126,23 @@ int	evaluate_board(t_game *game)
 	return (score);
 }
 
-void	remove_piece(t_game *game, int row, int col)
+static t_zone	save_zone(t_game *game)
+{
+	t_zone	zone;
+
+	zone.top_row = game->temp_top_row;
+	zone.min_col = game->temp_min_col;
+	zone.max_col = game->temp_max_col;
+	return (zone);
+}
+
+void	remove_piece(t_game *game, int row, int col, t_zone zone)
 {
 	game->moves_count--;
 	game->grid[row][col] = '.';
-	if (row > game->temp_top_row)
-		game->temp_top_row--;
-	if (col < game->temp_max_col)
-		game->temp_max_col++;
-	if (col > game->temp_min_col)
-		game->temp_min_col--;
+	game->temp_top_row = zone.top_row;
+	game->temp_min_col = zone.min_col;
+	game->temp_max_col = zone.max_col;
 }
 
 int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn, int row, int col)
@@ -145,6 +152,7 @@ int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn, int r
 	int min_eval;
 	int	i = 0;
 	int	center_col = game->columns / 2;
+	t_zone	zone;
 	t_state current_state = check_connects(game, col, row);
 	if (current_state == WIN_X)
 		return (10000 + depth);
@@ -164,9 +172,10 @@ int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn, int r
 			if (col >= game->temp_min_col - 3 && col <= game->temp_max_col + 3
 				&& game->grid[0][col] == '.')
 			{
+				zone = save_zone(game);
 				row = drop_piece(game, col, 'X');
 				eval = minimax(game, depth - 1, alpha, beta, 0, row, col);
-				remove_piece(game, row, col);
+				remove_piece(game, row, col, zone);
 
 				if (eval > max_eval)
 					max_eval = eval;
@@ -188,9 +197,10 @@ int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn, int r
 			if (col >= game->temp_min_col - 3 && col <= game->temp_max_col + 3
 				&& game->grid[0][col] == '.')
 			{
+				zone = save_zone(game);
 				row = drop_piece(game, col, 'O');
 				eval = minimax(game, depth - 1, alpha, beta, 1, row, col);
-				remove_piece(game, row, col);
+				remove_piece(game, row, col, zone);
 
 				if (eval < min_eval)
 					min_eval = eval;
@@ -247,6 +257,8 @@ int	get_best_move(t_game *game, int max_depth)
 	int	row;
 	int	i = 0;
 	int	center_col = game->columns / 2;
+	t_zone	zone;
+
 	set_zone(game, max_depth);
 	if (game->max_col == -1)
 		return (center_col);
@@ -257,9 +269,10 @@ int	get_best_move(t_game *game, int max_depth)
 		if (col >= game->min_col - 3 && col <= game->max_col + 3
 			&& game->grid[0][col] == '.')
 		{
+			zone = save_zone(game);
 			row = drop_piece(game, col, 'X');
-			score = minimax(game, max_depth - 1, INT_MIN, INT_MAX, 0, row, col);
-			remove_piece(game, row, col);
+			score = minimax(game, max_depth - 1, best_score, INT_MAX, 0, row, col);
+			remove_piece(game, row, col, zone);
 			if (score > best_score)
 			{
 				best_score = score;

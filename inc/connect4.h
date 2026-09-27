@@ -21,6 +21,13 @@ typedef struct s_win
 	int	dy;
 }	t_win;
 
+typedef struct s_zone
+{
+	int	top_row;
+	int	min_col;
+	int	max_col;
+}	t_zone;
+
 typedef struct s_game
 {
 	int		temp_top_row;
