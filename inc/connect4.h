@@ -30,6 +30,7 @@ typedef struct s_game
 	int		columns;
 	char	**grid;
 	char	current;
+	int		moves_count;
 	t_win	win_pos;
 	t_state	state;
 }	t_game;

@@ -128,6 +128,7 @@ int	evaluate_board(t_game *game)
 
 void	remove_piece(t_game *game, int row, int col)
 {
+	game->moves_count--;
 	game->grid[row][col] = '.';
 }
 

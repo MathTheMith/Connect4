@@ -37,16 +37,7 @@ static bool	check_axis(t_game *game, int x, int y, int dx, int dy)
 
 static bool	is_full(t_game *game)
 {
-	int	x;
-
-	x = 0;
-	while (x < game->columns)
-	{
-		if (game->grid[0][x] == '.')
-			return (false);
-		x++;
-	}
-	return (true);
+	return (game->moves_count == game->rows * game->columns);
 }
 
 t_state	check_connects(t_game *game, int x, int y)

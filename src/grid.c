@@ -25,6 +25,7 @@ int	init_game(t_game *game, int rows, int columns)
 
 	game->rows = rows;
 	game->columns = columns;
+	game->moves_count = 0;
     srand(time(NULL));
 	game->current = rand() % 2 == 0 ? 'X' : 'O';
 	game->state = PLAYING;
@@ -56,5 +57,6 @@ int	drop_piece(t_game *game, int col, char piece)
 		row--;
 	if (row >= 0)
 		game->grid[row][col] = piece;
+	game->moves_count++;
 	return (row);
 }
