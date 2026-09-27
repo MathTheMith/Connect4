@@ -21,6 +21,12 @@ typedef struct s_win
 	int	dy;
 }	t_win;
 
+typedef struct s_lm
+{
+	int	col1;
+	int	col2;
+}	t_lm;
+
 typedef struct s_zone
 {
 	int	top_row;
@@ -43,6 +49,7 @@ typedef struct s_game
 	char	current;
 	int		moves_count;
 	int		score;
+	t_lm	replay;
 	t_win	win_pos;
 	t_state	state;
 }	t_game;

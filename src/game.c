@@ -122,6 +122,7 @@ void	ai_play(t_game *game)
 	ft_putnbr_fd(col + 1, 1);
 	ft_putendl_fd("", 1, true);
 	game->current = (game->current == 'X') ? 'O' : 'X';
+	game->replay.col2 = col;
 }
 
 void	play_terminal(t_game *game)

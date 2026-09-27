@@ -81,18 +81,18 @@ bool	title_screen(t_game *game)
 
 static bool	handle_click(t_game *game, int cell)
 {
-	int	x;
 	int	row;
-
-	x = GetMousePosition().x / cell;
-	if (x < 0 || x >= game->columns)
+	int column;
+	column = GetMousePosition().x / cell;
+	if (column < 0 || column >= game->columns)
 		return (false);
-	row = drop_piece(game, x, game->current);
+	row = drop_piece(game, column, game->current);
 	if (row == -1)
 		return (false);
-	game->state = check_connects(game, x, row);
+	game->state = check_connects(game, column, row);
+	game->replay.col1 = column;
 	ft_putendl_fd("You played column ", 1, false);
-	ft_putnbr_fd(x + 1, 1);
+	ft_putnbr_fd((column) + 1, 1);
 	ft_putendl_fd("", 1, true);
 	return (true);
 }
@@ -156,6 +156,26 @@ void draw_board(t_game *game, int cell)
 	}
 }
 
+void undo_move(t_game *game)
+{
+	if (game->replay.col1 == -1 || game->replay.col2 == -1)
+		return;
+	game->moves_count -= 2;
+	int i = 0;
+	while (game->grid[i][game->replay.col1] == '.')
+		i++;
+	
+	game->grid[i][game->replay.col1] = '.';
+
+	i = 0;
+	while (game->grid[i][game->replay.col2] == '.')
+		i++;
+	
+	game->grid[i][game->replay.col2] = '.';
+	game->replay.col1 = -1;
+	game->replay.col2 = -1;
+}
+
 bool	draw_gui_grid(t_game *game)
 {
 	int		cell;
@@ -175,6 +195,8 @@ bool	draw_gui_grid(t_game *game)
 		return (true);
 	}
 	redraw = true;
+	game->replay.col1 = -1;
+	game->replay.col2 = -1;
 	while (!WindowShouldClose())
 	{
 		if (game->state == PLAYING && game->current == 'O'
@@ -203,6 +225,20 @@ bool	draw_gui_grid(t_game *game)
 			ai_play(game);
 			redraw = true;
 		}
+		if (game->moves_count > 1 && IsKeyPressed(KEY_BACKSPACE)
+			&& game->current == 'O' && game->state == PLAYING)
+			undo_move(game);
+		if (game->state != PLAYING && IsKeyPressed(KEY_ENTER))
+        {
+            free_game(game);
+            if (!init_game(game, game->rows, game->columns))
+            {
+                    ft_putendl_fd("Error: grid allocation failed !", 2, true);
+                    game->state = QUIT;
+                    break ;
+            }
+            redraw = true;
+        }
 	}
 	if (game->state == PLAYING)
 		game->state = QUIT;
