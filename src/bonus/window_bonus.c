@@ -1,4 +1,4 @@
-#include "connect4.h"
+#include "connect4_bonus.h"
 #include "raylib.h"
 
 #define MAX_CELL 100

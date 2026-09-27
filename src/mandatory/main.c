@@ -11,8 +11,7 @@ int	main(int ac, char **av)
 		ft_putendl_fd("Error: grid allocation failed !", 2, true);
 		return (1);
 	}
-	if (ac != 4 || !draw_gui_grid(&game))
-		play_terminal(&game);
+	play_terminal(&game);
 	print_result(&game);
 	free_game(&game);
 	return (0);

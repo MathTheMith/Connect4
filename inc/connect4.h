@@ -64,9 +64,6 @@ void	free_grid(char **grid, int rows);
 void	free_game(t_game *game);
 int		drop_piece(t_game *game, int col, char piece);
 
-/* window.c */
-bool	draw_gui_grid(t_game *game);
-
 /* draw.c */
 void	draw_grid(t_game *game);
 

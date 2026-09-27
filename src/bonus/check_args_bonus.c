@@ -1,4 +1,4 @@
-#include "connect4.h"
+#include "connect4_bonus.h"
 
 int	is_number(char *str)
 {
@@ -33,9 +33,9 @@ int	check_args(int ac, char **av)
 		ft_putendl_fd("First argument must be at least 6 !", 2, true);
 		return (0);
 	}
-	if (ft_atoi(av[2]) < 7)
+	if (ft_atoi(av[2]) < 7 || ft_atoi(av[2]) > 237)
 	{
-		ft_putendl_fd("Second argument must be at least 7 !", 2, true);
+		ft_putendl_fd("Second argument must be at least 7 and lower than 237!", 2, true);
 		return (0);
 	}
 	if (ac == 4 && ft_strncmp(av[3], "--gui", 6) != 0)

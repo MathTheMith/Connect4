@@ -1,5 +1,5 @@
 
-.PHONY : all fclean fclean-all re bonus clean-bin clean-obj FORCE
+.PHONY : all fclean fclean-all re re-bonus bonus clean-bin clean-obj debug debug-bonus FORCE
 CC = cc
 CFLAGS = -Wextra -Wall -Werror -MMD -MP -O2
 NO_DIR = --no-print-directory
@@ -24,7 +24,8 @@ RAYLIB_VERSION = 5.5
 RAYLIB_PATH = raylib/
 RAYLIB_DIR = $(RAYLIB_PATH)src/
 RAYLIB = $(RAYLIB_DIR)libraylib.a
-LIBS = -L $(LIBFT_DIR) -lft -L $(RAYLIB_DIR) -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+LIBS = -L $(LIBFT_DIR) -lft
+LIBS_BONUS = -L $(RAYLIB_DIR) -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 
 #############################################################################################
 #                                                                                           #
@@ -32,22 +33,28 @@ LIBS = -L $(LIBFT_DIR) -lft -L $(RAYLIB_DIR) -lraylib -lGL -lm -lpthread -ldl -l
 #                                                                                           #
 #############################################################################################
 
-SRC = main.c check_args.c grid.c window.c draw.c rules.c game.c minimax.c
+SRC = grid.c draw.c rules.c game.c minimax.c
+SRC_MANDATORY = main.c check_args.c
+SRC_BONUS = main_bonus.c check_args_bonus.c window_bonus.c
 
 #############################################################################################
 #                                                                                           #
 #                                        MANIPULATION                                       #
 #                                                                                           #
 #############################################################################################
-SRCS = \
-	$(addprefix $(P_SRC), $(SRC)) \
 
-OBJS =  \
-	$(subst $(P_SRC), $(P_OBJ), $(SRCS:.c=.o)) \
+SRCS = $(addprefix $(P_SRC), $(SRC))
+SRCS_MANDATORY = $(addprefix $(P_SRC)mandatory/, $(SRC_MANDATORY))
+SRCS_BONUS = $(addprefix $(P_SRC)bonus/, $(SRC_BONUS))
 
-P_OBJS = $(subst $(P_SRC), $(P_OBJ), $(SRCS))
+OBJS = $(patsubst $(P_SRC)%.c, $(P_OBJ)%.o, $(SRCS))
+OBJS_MANDATORY = $(patsubst $(P_SRC)%.c, $(P_OBJ)%.o, $(SRCS_MANDATORY))
+OBJS_BONUS = $(patsubst $(P_SRC)%.c, $(P_OBJ)%.o, $(SRCS_BONUS))
 
-DEPS = $(OBJS:%.o=%.d)
+DEPS = $(OBJS:.o=.d) $(OBJS_MANDATORY:.o=.d) $(OBJS_BONUS:.o=.d)
+
+# Marker telling which version (mandatory or bonus) is currently linked
+BONUS_FLAG = $(P_OBJ).bonus
 
 #############################################################################################
 #                                                                                           #
@@ -57,14 +64,30 @@ DEPS = $(OBJS:%.o=%.d)
 
 all: $(NAME)
 
-$(NAME): $(LIBFT) $(RAYLIB) $(OBJS)
-	@$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS) && \
+# Relink the mandatory version if the bonus one was the last built
+$(NAME): $(LIBFT) $(OBJS) $(OBJS_MANDATORY) $(if $(wildcard $(BONUS_FLAG)),FORCE)
+	@rm -f $(BONUS_FLAG)
+	@$(CC) $(CFLAGS) -o $@ $(OBJS) $(OBJS_MANDATORY) $(LIBS) && \
 	echo "$(Green)Creating executable $@$(Color_Off)" || \
 	{ echo "$(Red)Error creating $@$(Color_Off)"; exit 1; }
 
-$(P_OBJ)%.o: $(P_SRC)%.c | $(RAYLIB)
+bonus: $(BONUS_FLAG)
+
+$(BONUS_FLAG): $(LIBFT) $(RAYLIB) $(OBJS) $(OBJS_BONUS)
+	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(OBJS_BONUS) $(LIBS) $(LIBS_BONUS) && \
+	echo "$(Green)Creating executable $(NAME) (bonus)$(Color_Off)" || \
+	{ echo "$(Red)Error creating $(NAME)$(Color_Off)"; exit 1; }
+	@touch $@
+
+$(P_OBJ)bonus/%.o: $(P_SRC)bonus/%.c | $(RAYLIB)
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) -I $(P_INC) -I $(LIBFT_DIR) -I $(RAYLIB_DIR) -c $< -o $@ && \
+	echo "$(Cyan)Compiling $<$(Color_Off)" || \
+	{ echo "$(Red)Error compiling $<$(Color_Off)"; exit 1; }
+
+$(P_OBJ)%.o: $(P_SRC)%.c
+	@mkdir -p $(dir $@)
+	@$(CC) $(CFLAGS) -I $(P_INC) -I $(LIBFT_DIR) -c $< -o $@ && \
 	echo "$(Cyan)Compiling $<$(Color_Off)" || \
 	{ echo "$(Red)Error compiling $<$(Color_Off)"; exit 1; }
 
@@ -111,6 +134,10 @@ re:
 	@$(MAKE) fclean
 	@$(MAKE) all
 
+re-bonus:
+	@$(MAKE) fclean
+	@$(MAKE) bonus
+
 clear: clean
 fclear: fclean
 flcean: fclean
@@ -124,6 +151,9 @@ flcear: fclean
 
 debug:
 	@$(MAKE) $(NAME) CFLAGS="$(CFLAGS_DEBUG)"
+
+debug-bonus:
+	@$(MAKE) bonus CFLAGS="$(CFLAGS_DEBUG)"
 
 #############################################################################################
 #                                                                                           #
