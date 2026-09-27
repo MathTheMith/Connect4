@@ -1,25 +1,9 @@
 #include <limits.h>
 #include "connect4.h"
 
-
-static	int score_window(char window[4])
+static	int score_counts(int ai_count, int opp_count, int empty_count)
 {
 	int	score = 0;
-	int	ai_count = 0;
-	int	opp_count = 0;
-	int	empty_count = 0;
-	int	i = 0;
-
-	while (i < 4)
-	{
-		if (window[i] == 'X')
-			ai_count++;
-		else if (window[i] == 'O')
-			opp_count++;
-		else
-			empty_count++;
-	i++;
-	}
 
 	if (ai_count == 3 && empty_count == 1)
 		score += 50;
@@ -30,100 +14,65 @@ static	int score_window(char window[4])
 	return (score);
 }
 
+static int	window_delta(t_game *game, int start_row, int start_col,
+	int row_step, int col_step, char piece)
+{
+	int		ai_count = 0;
+	int		opp_count = 0;
+	int		empty_count = 0;
+	int		i = 0;
+	char	cell;
+
+	while (i < 4)
+	{
+		cell = game->grid[start_row + i * row_step][start_col + i * col_step];
+		if (cell == 'X')
+			ai_count++;
+		else if (cell == 'O')
+			opp_count++;
+		else
+			empty_count++;
+		i++;
+	}
+	if (piece == 'X')
+		return (score_counts(ai_count, opp_count, empty_count) - score_counts(ai_count - 1, opp_count, empty_count + 1));
+	return (score_counts(ai_count, opp_count, empty_count) - score_counts(ai_count, opp_count - 1, empty_count + 1));
+}
+
+int	move_score_delta(t_game *game, int row, int col, char piece)
+{
+	int	delta = 0;
+	int	shift = 0;
+	int	left_col;
+	int	top_row;
+	int	bottom_row;
+
+	while (shift < 4)
+	{
+		left_col = col - shift;
+		top_row = row - shift;
+		bottom_row = row + shift;
+		if (left_col >= 0 && left_col + 3 < game->columns)
+			delta += window_delta(game, row, left_col, 0, 1, piece);
+		if (top_row >= 0 && top_row + 3 < game->rows)
+			delta += window_delta(game, top_row, col, 1, 0, piece);
+		if (top_row >= 0 && top_row + 3 < game->rows
+			&& left_col >= 0 && left_col + 3 < game->columns)
+			delta += window_delta(game, top_row, left_col, 1, 1, piece);
+		if (bottom_row < game->rows && bottom_row - 3 >= 0
+			&& left_col >= 0 && left_col + 3 < game->columns)
+			delta += window_delta(game, bottom_row, left_col, -1, 1, piece);
+		shift++;
+	}
+	if (piece == 'X' && col == game->columns / 2)
+		delta += 2;
+	return (delta);
+}
+
 
 int	evaluate_board(t_game *game)
 {
-	int		score = 0;
-	int		center_col = game->columns / 2;
-	int		r;
-	int		c;
-	int		i;
-	char	window[4];
-	int		r_lo = game->temp_top_row - 3 < 0 ? 0 : game->temp_top_row - 3;
-	int		c_lo = game->temp_min_col - 6 < 0 ? 0 : game->temp_min_col - 6;
-	int		c_hi = game->temp_max_col + 6 >= game->columns ? game->columns - 1 : game->temp_max_col + 6;
-
-	r = r_lo;
-	while (r < game->rows)
-	{
-		if (game->grid[r][center_col] == 'X')
-			score += 2;
-		r++;
-	}
-
-	r = r_lo;
-	while (r < game->rows)
-	{
-		c = c_lo;
-		while (c <= c_hi - 3)
-		{
-			i = 0;
-			while (i < 4)
-			{
-				window[i] = game->grid[r][c + i];
-				i++;
-			}
-			score += score_window(window);
-			c++;
-		}
-		r++;
-	}
-
-	c = c_lo;
-	while (c <= c_hi)
-	{
-		r = r_lo;
-		while (r < game->rows - 3)
-		{
-			i = 0;
-			while (i < 4)
-			{
-				window[i] = game->grid[r + i][c];
-				i++;
-			}
-			score += score_window(window);
-			r++;
-		}
-		c++;
-	}
-
-	r = r_lo;
-    while (r < game->rows - 3)
-    {
-        c = c_lo;
-        while (c <= c_hi - 3)
-        {
-            i = 0;
-            while (i < 4)
-			{
-                window[i] = game->grid[r + i][c + i];
-				i++;
-			}
-            score += score_window(window);
-            c++;
-        }
-        r++;
-    }
-
-    r = r_lo > 3 ? r_lo : 3;
-    while (r < game->rows)
-    {
-        c = c_lo;
-        while (c <= c_hi - 3)
-        {
-            i = 0;
-            while (i < 4)
-			{
-                window[i] = game->grid[r - i][c + i];
-				i++;
-			}
-            score += score_window(window);
-            c++;
-        }
-        r++;
-    }
-
-	return (score);
+	return (game->score);
 }
 
 static t_zone	save_zone(t_game *game)
@@ -133,6 +82,7 @@ static t_zone	save_zone(t_game *game)
 	zone.top_row = game->temp_top_row;
 	zone.min_col = game->temp_min_col;
 	zone.max_col = game->temp_max_col;
+	zone.score = game->score;
 	return (zone);
 }
 
@@ -143,6 +93,7 @@ void	remove_piece(t_game *game, int row, int col, t_zone zone)
 	game->temp_top_row = zone.top_row;
 	game->temp_min_col = zone.min_col;
 	game->temp_max_col = zone.max_col;
+	game->score = zone.score;
 }
 
 int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn, int row, int col)
@@ -260,7 +211,7 @@ int	get_best_move(t_game *game, int max_depth)
 	t_zone	zone;
 
 	set_zone(game, max_depth);
-	if (game->max_col == -1)
+	if (game->moves_count == 0)
 		return (center_col);
 	
 	while (i < game->columns)

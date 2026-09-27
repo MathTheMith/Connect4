@@ -33,6 +33,7 @@ int	init_game(t_game *game, int rows, int columns)
 	game->temp_min_col = game->min_col;
 	game->temp_max_col = game->max_col;
 	game->win_pos = (t_win){0, 0, 0, 0};
+	game->score = 0;
     srand(time(NULL));
 	game->current = rand() % 2 == 0 ? 'X' : 'O';
 	game->state = PLAYING;
@@ -63,8 +64,11 @@ int	drop_piece(t_game *game, int col, char piece)
 	while (row >= 0 && game->grid[row][col] != '.')
 		row--;
 	if (row >= 0)
+	{
 		game->grid[row][col] = piece;
-	game->moves_count++;
+		game->score += move_score_delta(game, row, col, piece);
+		game->moves_count++;
+	}
 	if (row < game->temp_top_row)
 		game->temp_top_row = row;
 	if (col > game->temp_max_col)

@@ -1,7 +1,7 @@
 
 .PHONY : all fclean fclean-all re bonus clean-bin clean-obj FORCE
 CC = cc
-CFLAGS = -Wextra -Wall -Werror -MMD -MP -O2 -O0
+CFLAGS = -Wextra -Wall -Werror -MMD -MP -O2
 NO_DIR = --no-print-directory
 MAKE := $(MAKE) -j $(NO_DIR)
 NAME = connect4

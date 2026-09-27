@@ -26,6 +26,7 @@ typedef struct s_zone
 	int	top_row;
 	int	min_col;
 	int	max_col;
+	int	score;
 }	t_zone;
 
 typedef struct s_game
@@ -41,6 +42,7 @@ typedef struct s_game
 	char	**grid;
 	char	current;
 	int		moves_count;
+	int		score;
 	t_win	win_pos;
 	t_state	state;
 }	t_game;
@@ -75,5 +77,6 @@ void	ai_play(t_game *game);
 void	play_terminal(t_game *game);
 
 int	get_best_move(t_game *game, int max_depth);
+int	move_score_delta(t_game *game, int row, int col, char piece);
 
 #endif
