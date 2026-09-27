@@ -128,7 +128,7 @@ fclean:
 	@$(MAKE) clean-bin
 
 fclean-all: fclean
-	@if [ -d $(RAYLIB_DIR) ]; then $(MAKE) -C $(RAYLIB_DIR) clean > /dev/null; fi
+	rm -rf $(RAYLIB_PATH)
 
 re:
 	@$(MAKE) fclean
