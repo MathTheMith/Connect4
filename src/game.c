@@ -95,18 +95,6 @@ static int	get_depth(t_game *game)
 		depth = 3;
 	if (game->max_col == 0 && game->min_col == game->columns - 1)
 		depth = 3;
-	ft_putendl_fd("depth ", 1, false);
-	ft_putnbr_fd(depth, 1);
-	ft_putendl_fd("\n", 1, false);
-
-	ft_putendl_fd("max_col: ", 1, false);
-	ft_putnbr_fd(game->max_col, 1);
-	ft_putendl_fd("\n", 1, false);
-
-	ft_putendl_fd("min_col: ", 1, false);
-	ft_putnbr_fd(game->min_col, 1);
-	ft_putendl_fd("\n", 1, false);
-
 	return (depth);
 }
 
@@ -136,6 +124,7 @@ void	play_terminal(t_game *game)
 				game->state = QUIT;
 			game->current = (game->current == 'X') ? 'O' : 'X';		
 		}
+		draw_grid(game);
 		if (game->current == 'X' && game->state == PLAYING)
 			ai_play(game);
 	}
