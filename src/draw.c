@@ -31,7 +31,7 @@ static void print_nb_columns(int columns)
 	{
 		if (i < 10)
 			ft_putendl_fd("  ", 1, false);
-		else if (i < 100)
+		else if (i <= 100)
 			ft_putendl_fd(" ", 1, false);
 		else
 			ft_putendl_fd("", 1, false);

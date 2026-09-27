@@ -68,12 +68,18 @@ void	print_result(t_game *game)
 		ft_putendl_fd("It's a draw !", 1, true);
 }
 
+static int	get_depth(t_game *game)
+{
+	int	depth = 11 - 10 * (game->max_col - game->min_col) / game->columns;
+	return (depth);
+}
+
 void	ai_play(t_game *game)
 {
 	int	col;
 
 	ft_putendl_fd("AI is thinking...", 1, true);
-	col = get_best_move(game, 10);
+	col = get_best_move(game, get_depth(game));
 	game->state = check_connects(game, col, drop_piece(game, col, game->current));
 	ft_putendl_fd("AI played column ", 1, false);
 	ft_putnbr_fd(col + 1, 1);
