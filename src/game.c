@@ -70,7 +70,25 @@ void	print_result(t_game *game)
 
 static int	get_depth(t_game *game)
 {
-	int	depth = 11 - 10 * (game->max_col - game->min_col) / game->columns;
+	int	depth = 9 - 5 * (game->max_col - game->min_col) / game->columns;
+	if (game->max_col == 0 && game->min_col == game->columns -1)
+		depth = 3;
+
+	if (game->max_col ==  game->min_col)
+		depth = 3;
+	depth = 3;
+	ft_putendl_fd("depth ", 1, false);
+	ft_putnbr_fd(depth, 1);
+	ft_putendl_fd("\n", 1, false);
+
+	ft_putendl_fd("max_col: ", 1, false);
+	ft_putnbr_fd(game->max_col, 1);
+	ft_putendl_fd("\n", 1, false);
+
+	ft_putendl_fd("min_col: ", 1, false);
+	ft_putnbr_fd(game->min_col, 1);
+	ft_putendl_fd("\n", 1, false);
+
 	return (depth);
 }
 
@@ -79,6 +97,7 @@ void	ai_play(t_game *game)
 	int	col;
 
 	ft_putendl_fd("AI is thinking...", 1, true);
+	set_zone(game, 2);
 	col = get_best_move(game, get_depth(game));
 	game->state = check_connects(game, col, drop_piece(game, col, game->current));
 	ft_putendl_fd("AI played column ", 1, false);

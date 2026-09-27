@@ -215,14 +215,14 @@ int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn, int r
 	}
 }
 
-static void	set_zone(t_game *game, int max_depth)
+void	set_zone(t_game *game, int max_depth)
 {
 	int	r;
 	int	c;
 
 	game->top_row = game->rows;
-	game->min_col = game->columns;
-	game->max_col = -1;
+	game->min_col = game->columns - 1;
+	game->max_col = 0;
 	r = 0;
 	while (r < game->rows)
 	{

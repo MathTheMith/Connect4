@@ -49,6 +49,9 @@ typedef struct s_game
 int	is_number(char *str);
 int	check_args(int ac, char **av);
 
+/* minimax.c */
+void	set_zone(t_game *game, int max_depth);
+
 /* grid.c */
 int		init_game(t_game *game, int rows, int columns);
 void	free_grid(char **grid, int rows);
