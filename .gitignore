@@ -1,8 +1,11 @@
 .obj/
+*bench/
+*.py
 *.o
 *.d
 *.a
-connect4
 *.pdf
+*.md
+connect4
 raylib/
-TODO.md
+gmon.out
