@@ -58,5 +58,11 @@ int	drop_piece(t_game *game, int col, char piece)
 	if (row >= 0)
 		game->grid[row][col] = piece;
 	game->moves_count++;
+	if (row < game->temp_top_row)
+		game->temp_top_row = row;
+	if (col > game->temp_max_col)
+		game->temp_max_col = col;
+	if (col < game->temp_min_col)
+		game->temp_min_col = col;
 	return (row);
 }

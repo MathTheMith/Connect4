@@ -39,9 +39,9 @@ int	evaluate_board(t_game *game)
 	int		c;
 	int		i;
 	char	window[4];
-	int		r_lo = game->top_row - 3 < 0 ? 0 : game->top_row - 3;
-	int		c_lo = game->min_col - 6 < 0 ? 0 : game->min_col - 6;
-	int		c_hi = game->max_col + 6 >= game->columns ? game->columns - 1 : game->max_col + 6;
+	int		r_lo = game->temp_top_row - 3 < 0 ? 0 : game->temp_top_row - 3;
+	int		c_lo = game->temp_min_col - 6 < 0 ? 0 : game->temp_min_col - 6;
+	int		c_hi = game->temp_max_col + 6 >= game->columns ? game->columns - 1 : game->temp_max_col + 6;
 
 	r = r_lo;
 	while (r < game->rows)
@@ -130,6 +130,12 @@ void	remove_piece(t_game *game, int row, int col)
 {
 	game->moves_count--;
 	game->grid[row][col] = '.';
+	if (row > game->temp_top_row)
+		game->temp_top_row--;
+	if (col < game->temp_max_col)
+		game->temp_max_col++;
+	if (col > game->temp_min_col)
+		game->temp_min_col--;
 }
 
 int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn, int row, int col)
@@ -155,7 +161,7 @@ int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn, int r
 		while (i < game->columns)
 		{
 			col = center_col + (1 - 2 * (i % 2)) * (i + 1) / 2;
-			if (col >= game->min_col - 3 && col <= game->max_col + 3
+			if (col >= game->temp_min_col - 3 && col <= game->temp_max_col + 3
 				&& game->grid[0][col] == '.')
 			{
 				row = drop_piece(game, col, 'X');
@@ -179,7 +185,7 @@ int	minimax(t_game *game, int depth, int alpha, int beta, bool is_ia_turn, int r
 		while (i < game->columns)
 		{
 			col = center_col + (1 - 2 * (i % 2)) * (i + 1) / 2;
-			if (col >= game->min_col - 3 && col <= game->max_col + 3
+			if (col >= game->temp_min_col - 3 && col <= game->temp_max_col + 3
 				&& game->grid[0][col] == '.')
 			{
 				row = drop_piece(game, col, 'O');
@@ -227,6 +233,9 @@ static void	set_zone(t_game *game, int max_depth)
 		r++;
 	}
 	game->top_row -= max_depth;
+	game->temp_max_col = game->max_col;
+	game->temp_min_col = game->min_col;
+	game->temp_top_row = game->top_row;
 }
 
 int	get_best_move(t_game *game, int max_depth)
@@ -238,10 +247,10 @@ int	get_best_move(t_game *game, int max_depth)
 	int	row;
 	int	i = 0;
 	int	center_col = game->columns / 2;
-
 	set_zone(game, max_depth);
 	if (game->max_col == -1)
 		return (center_col);
+	
 	while (i < game->columns)
 	{
 		col = center_col + (1 - 2 * (i % 2)) * (i + 1) / 2;
