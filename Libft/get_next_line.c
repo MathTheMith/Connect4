@@ -69,7 +69,7 @@ static char	*update_storage(char *storage)
 	i = 0;
 	while (storage[i] && storage[i] != '\n')
 		i++;
-	if (!storage[i])
+	if (!storage[i] || !storage[i + 1])
 		return (free_ptr((void **)&storage));
 	new_storage = ft_substr(storage, i + 1, ft_strlen(storage) - i);
 	free_ptr((void **)&storage);
@@ -82,7 +82,7 @@ char	*get_next_line(int fd)
 	char		*line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (NULL);
+		return (free_ptr((void **)&storage));
 	storage = safe_read(fd, storage);
 	if (!storage)
 		return (NULL);

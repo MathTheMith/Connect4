@@ -120,6 +120,7 @@ void	play_terminal(t_game *game)
 		if (game->current == 'X' && game->state == PLAYING)
 			ai_play(game);
 	}
+	get_next_line(-1);
 	if (game->state != QUIT)
 		draw_grid(game);
 }
