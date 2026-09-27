@@ -70,13 +70,31 @@ void	print_result(t_game *game)
 
 static int	get_depth(t_game *game)
 {
-	int	depth = 9 - 5 * (game->max_col - game->min_col) / game->columns;
-	if (game->max_col == 0 && game->min_col == game->columns -1)
-		depth = 3;
+	int	a;
+	int	b;
+	int	depth;
 
-	if (game->max_col ==  game->min_col)
+	if (game->columns < 15)
+	{
+		a = 11;
+		b = 5;
+	}
+	else if (game->columns < 100)
+	{
+		a = 8;
+		b = 4;
+	}
+	else
+	{
+		a = 6;
+		b = 3;
+	}
+	depth = a - b * (game->max_col - game->min_col) / game->columns;
+
+	if (game->max_col == game->min_col)
 		depth = 3;
-	depth = 3;
+	if (game->max_col == 0 && game->min_col == game->columns - 1)
+		depth = 3;
 	ft_putendl_fd("depth ", 1, false);
 	ft_putnbr_fd(depth, 1);
 	ft_putendl_fd("\n", 1, false);
